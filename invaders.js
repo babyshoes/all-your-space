@@ -2,7 +2,7 @@
 // - create clearer board
 // - impose field boundaries
 // - have invaders move together
-// - spawn animation
+// - move animation
 
 class Player {
   constructor(color, startingX, startingY, width=40, height=40, lives=1) {
@@ -14,8 +14,12 @@ class Player {
     this.posY = startingY
   }
 
-  move(spacesOver) {
-    this.posX += spacesOver
+  move(spacesOver, fieldEdgeLeft, fieldEdgeRight) {
+    let newPosX = this.posX + spacesOver
+    
+    newPosX = newPosX >= fieldEdgeRight - this.width ? fieldEdgeRight - this.width : newPosX
+    newPosX = newPosX < fieldEdgeLeft ? fieldEdgeLeft : newPosX
+    this.posX = newPosX
   }
 
   shoot(){
@@ -26,33 +30,30 @@ class Player {
 var Field = (function() {
 	var canvas = document.getElementById('c')
 	var ctx = canvas.getContext('2d')
+  var canvasEdgeMax = canvas.width * 0.95
+  var canvasEdgeMin = canvas.width * 0.05
+  var canvasTop = canvas.height * 0.05
+  var canvasBottom = canvas.height * 0.9
+
+  var numEnemies = 7
   var playerMove = 0
-  var numEnemies = 5
 
   var aliens = [...Array(numEnemies).keys()].map(i =>
-    new Player('red', canvas.width * i/numEnemies, 10 ))
-  var human = new Player('white', canvas.width / 2, 300)
+    new Player('red', canvasEdgeMax * (i/numEnemies) + canvasEdgeMin, canvasTop ))
+  var human = new Player('white', (canvas.width) / 2, canvasBottom)
 
   window.addEventListener("keydown", function (event) {
-  if (event.defaultPrevented) {
-    return;
-  }
-
-  switch (event.key) {
-    case "ArrowLeft":
-      playerMove = -8
-      break;
-    case "ArrowRight":
-      playerMove = 8
-      break;
-    case ' ':
-      break;
-    default:
-      return; // Quit when this doesn't handle the key event.
-  }
-  // Cancel the default action to avoid it being handled twice
-    event.preventDefault();
-  }, true)
+    switch (event.key) {
+      case "ArrowLeft":
+        playerMove = -8
+        break;
+      case "ArrowRight":
+        playerMove = 8
+        break;
+      case ' ':
+        break;
+    }
+  })
 
   window.addEventListener("keyup", function (event) {
     switch (event.key) {
@@ -74,7 +75,7 @@ var Field = (function() {
 	  window.requestAnimationFrame(draw)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    human.move(playerMove)
+    human.move(playerMove, canvasEdgeMin, canvasEdgeMax)
     drawPlayer({...human})
     aliens.forEach(alien => drawPlayer({...alien}))
 	}
@@ -82,7 +83,10 @@ var Field = (function() {
 	return {
 		animate: draw,
     canvasWidth: canvas.width,
-    canvasHeight: canvas.height
+    canvasHeight: canvas.height,
+    aliens: aliens,
+    human: human,
+    fieldEdgeRight: canvasEdgeMax
 	}
 })()
 

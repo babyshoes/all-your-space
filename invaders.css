@@ -1,5 +1,26 @@
+
+body, canvas, div {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+}
+
 body {
   background-color: black;
   margin: 0px;
   overflow: 0px;
+}
+
+canvas {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
 }
