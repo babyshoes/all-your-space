@@ -1,7 +1,8 @@
 // TO DO:
+// - create clearer board
 // - impose field boundaries
-// - load phalanx of invaders
-// spawn animation
+// - have invaders move together
+// - spawn animation
 
 class Player {
   constructor(color, startingX, startingY, width=40, height=40, lives=1) {
@@ -25,11 +26,11 @@ class Player {
 var Field = (function() {
 	var canvas = document.getElementById('c')
 	var ctx = canvas.getContext('2d')
-  var width = canvas.width / spacing
-  var height = canvas.width / spacing
   var playerMove = 0
+  var numEnemies = 5
 
-  var computer = new Player('red', canvas.width / 2, 10)
+  var aliens = [...Array(numEnemies).keys()].map(i =>
+    new Player('red', canvas.width * i/numEnemies, 10 ))
   var human = new Player('white', canvas.width / 2, 300)
 
   window.addEventListener("keydown", function (event) {
@@ -45,13 +46,10 @@ var Field = (function() {
       playerMove = 8
       break;
     case ' ':
-      // Do something for "enter" or "return" key press.
       break;
     default:
-      // playerMove = 0
       return; // Quit when this doesn't handle the key event.
   }
-
   // Cancel the default action to avoid it being handled twice
     event.preventDefault();
   }, true)
@@ -64,8 +62,6 @@ var Field = (function() {
       case "ArrowRight":
         playerMove = 0
         break;
-      default:
-        return; // Quit when this doesn't handle the key event.
     }
   })
 
@@ -80,7 +76,7 @@ var Field = (function() {
 
     human.move(playerMove)
     drawPlayer({...human})
-    drawPlayer({...computer})
+    aliens.forEach(alien => drawPlayer({...alien}))
 	}
 
 	return {
