@@ -70,8 +70,6 @@ var Field = (function() {
     },
   [])
 
-  // var aliens = [...Array(numEnemies).keys()].map(i =>
-  //   new Player('alien', 'white', canvasEdgeMax * 0.8 * (i/numEnemies) + canvasEdgeMin, canvasTop ))
   var human = new Player('human', 'white', (canvas.width) / 2, canvasBottom)
 
   window.addEventListener("keydown", function (event) {
@@ -133,11 +131,7 @@ var Field = (function() {
 
 	return {
 		animate: draw,
-    canvasWidth: canvas.width,
-    canvasHeight: canvas.height,
-    // aliens: aliens,
     human: human,
-    fieldEdgeRight: canvasEdgeMax
 	}
 })()
 
