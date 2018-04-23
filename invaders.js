@@ -1,7 +1,4 @@
 // TO DO:
-// - create clearer board
-// - impose field boundaries
-// - have invaders move together
 // - move animation
 
 class Player {
@@ -12,14 +9,30 @@ class Player {
     this.height = height
     this.posX = startingX
     this.posY = startingY
+    this.atEdge = false
+  }
+
+  atRightEdge(posX, fieldEdgeRight) {
+    let rightSpillOver = posX > fieldEdgeRight - this.width
+    return rightSpillOver
+  }
+
+  atLeftEdge(posX, fieldEdgeLeft) {
+    let leftSpillOver = posX < fieldEdgeLeft
+    return leftSpillOver
   }
 
   move(spacesOver, fieldEdgeLeft, fieldEdgeRight) {
     let newPosX = this.posX + spacesOver
-    
-    newPosX = newPosX >= fieldEdgeRight - this.width ? fieldEdgeRight - this.width : newPosX
-    newPosX = newPosX < fieldEdgeLeft ? fieldEdgeLeft : newPosX
+    let rightSpillOver = this.atRightEdge(newPosX, fieldEdgeRight)
+    let leftSpillOver = this.atLeftEdge(newPosX, fieldEdgeLeft)
+    newPosX = rightSpillOver ? fieldEdgeRight - this.width : newPosX
+    newPosX = leftSpillOver ? fieldEdgeLeft : newPosX
+    this.atEdge = rightSpillOver || leftSpillOver
+
     this.posX = newPosX
+    this.atEdge = this.atLeftEdge(this.posX + spacesOver, fieldEdgeLeft) ||
+                  this.atRightEdge(this.posX + spacesOver, fieldEdgeRight)
   }
 
   shoot(){
@@ -34,12 +47,14 @@ var Field = (function() {
   var canvasEdgeMin = canvas.width * 0.05
   var canvasTop = canvas.height * 0.05
   var canvasBottom = canvas.height * 0.9
+  var frame = 0
 
-  var numEnemies = 7
+  var numEnemies = 5
   var playerMove = 0
+  var alienMove = 20
 
   var aliens = [...Array(numEnemies).keys()].map(i =>
-    new Player('red', canvasEdgeMax * (i/numEnemies) + canvasEdgeMin, canvasTop ))
+    new Player('red', canvasEdgeMax * 0.8 * (i/numEnemies) + canvasEdgeMin, canvasTop ))
   var human = new Player('white', (canvas.width) / 2, canvasBottom)
 
   window.addEventListener("keydown", function (event) {
@@ -66,6 +81,8 @@ var Field = (function() {
     }
   })
 
+
+
   var drawPlayer = ({color, posX, posY, width, height}) => {
     ctx.fillStyle = color
     ctx.fillRect(posX, posY, width, height)
@@ -75,9 +92,15 @@ var Field = (function() {
 	  window.requestAnimationFrame(draw)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+    if(frame % 20 === 0){
+      if(aliens.find(alien => alien.atEdge)) { alienMove = 0 - alienMove }
+      aliens.forEach(alien => alien.move(alienMove, canvasEdgeMin, canvasEdgeMax))
+    }
+
     human.move(playerMove, canvasEdgeMin, canvasEdgeMax)
     drawPlayer({...human})
     aliens.forEach(alien => drawPlayer({...alien}))
+    frame++
 	}
 
 	return {
