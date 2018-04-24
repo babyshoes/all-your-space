@@ -1,5 +1,10 @@
 // TO DO:
-// - move animation
+// - shooting mechanic
+// - killing mechanic
+// - tally kill score
+// - score div
+// - rotating move animation
+
 
 class Player {
   constructor(type, color, startingX, startingY, width=40, height=40, lives=1) {
@@ -11,6 +16,7 @@ class Player {
     this.posX = startingX
     this.posY = startingY
     this.atEdge = false
+    this.bullets = []
   }
 
   atRightEdge(posX, fieldEdgeRight) {
@@ -29,31 +35,45 @@ class Player {
     let leftSpillOver = this.atLeftEdge(newPosX, fieldEdgeLeft)
     newPosX = rightSpillOver ? fieldEdgeRight - this.width : newPosX
     newPosX = leftSpillOver ? fieldEdgeLeft : newPosX
-    this.atEdge = rightSpillOver || leftSpillOver
-
     this.posX = newPosX
+
     this.atEdge = this.atLeftEdge(this.posX + spacesOver, fieldEdgeLeft) ||
                   this.atRightEdge(this.posX + spacesOver, fieldEdgeRight)
   }
 
-  shoot(){
-
+  shoot(playerTypes){
+    let enemyType = playerTypes.find(x => x!=this.type)
+    this.bullets.push(new Bullet(this.posX, this.posY - this.height - 10, enemyType))
   }
 }
 
-var Field = (function() {
-	var canvas = document.getElementById('c')
-	var ctx = canvas.getContext('2d')
-  var canvasEdgeMax = canvas.width * 0.95
-  var canvasEdgeMin = canvas.width * 0.05
-  var canvasTop = canvas.height * 0.05
-  var canvasBottom = canvas.height * 0.9
-  var frame = 0
+class Bullet {
+  constructor(startingX, startingY, effectiveAgainst){
+    this.posX = startingX
+    this.posY = startingY
+    this.effectiveAgainst = effectiveAgainst
+  }
 
-  var numEnemies = 5
-  var numEnemyLines = 3
-  var playerMove = 0
-  var alienMove = 20
+  move(spacesOver, fieldTop, fieldBottom) {
+    let newPosY = this.posY + spacesOver
+  }
+}
+
+const Field = (function() {
+	const canvas = document.getElementById('c')
+	const ctx = canvas.getContext('2d')
+  const canvasEdgeMax = canvas.width * 0.95
+  const canvasEdgeMin = canvas.width * 0.05
+  const canvasTop = canvas.height * 0.05
+  const canvasBottom = canvas.height * 0.9
+
+  const numEnemies = 5
+  const numEnemyLines = 3
+  let playerMove = 0
+  let alienMove = 20
+  let frame = 0
+
+  const playerTypes = ['alien', 'human']
 
   function makeAliens(startingX, startingY) {
     return [...Array(numEnemies).keys()].map(i =>
@@ -62,15 +82,15 @@ var Field = (function() {
       canvasTop + startingY))
   }
 
-  var enemyLines = [...Array(numEnemyLines).keys()]
+  let enemyLines = [...Array(numEnemyLines).keys()]
     .reduce((lines, i) => {
-      let startingX = i % 2 === 0 ? 70 : 0
-      let startingY = i * 70
+      let startingX = i % 2 === 0 ? 80 : 0
+      let startingY = i * 80
       return [...lines, makeAliens(startingX, startingY)]
     },
   [])
 
-  var human = new Player('human', 'white', (canvas.width) / 2, canvasBottom)
+  const human = new Player('human', 'white', (canvas.width) / 2, canvasBottom)
 
   window.addEventListener("keydown", function (event) {
     switch (event.key) {
@@ -81,6 +101,7 @@ var Field = (function() {
         playerMove = 8
         break;
       case ' ':
+        human.shoot(playerTypes)
         break;
     }
   })
@@ -97,41 +118,55 @@ var Field = (function() {
   })
 
 
-
-  var drawPlayer = ({type, color, posX, posY, width, height}) => {
-    if (type === 'human') {
-      ctx.fillStyle = color
-      ctx.fillRect(posX, posY, width, height)
+  const drawPlayer = ({type, color, posX, posY, width, height}) => {
+    ctx.beginPath();
+    ctx.rect(posX, posY, width, height);
+    if (type.includes('human')) {
+      ctx.fillStyle = color;
+      ctx.fill()
     }
-    else {
-      ctx.strokeStyle = color
-      ctx.strokeRect(posX, posY, width, height)
+    if (type.includes('alien')) {
+      ctx.strokeStyle = color;
+      ctx.stroke()
     }
+  }
 
+  const drawBullet = ({startingX, startingY}) => {
+    ctx.beginPath();
+    ctx.arc(startingX, startingY, 3, 0, 2*Math.PI);
+    ctx.strokeStyle = 'red'
+    ctx.stroke();
   }
 
 	function draw() {
 	  window.requestAnimationFrame(draw)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+    // move, draw human player
+    human.move(playerMove, canvasEdgeMin, canvasEdgeMax)
+    drawPlayer({...human})
+
+    // move, draw alien players
     if(frame % 20 === 0){
       if([].concat(...enemyLines).find(alien => alien.atEdge)) { alienMove = 0 - alienMove }
       for (let aliens of enemyLines) {
         aliens.forEach(alien => alien.move(alienMove, canvasEdgeMin, canvasEdgeMax))
       }
     }
-
-    human.move(playerMove, canvasEdgeMin, canvasEdgeMax)
-    drawPlayer({...human})
     enemyLines.forEach(aliens =>
       aliens.forEach(alien => drawPlayer({...alien}))
     )
     frame++
+
+    // debugg
+    // draw bullet
+    human.bullets.forEach(bullet => drawBullet({...bullet}))
 	}
 
 	return {
 		animate: draw,
     human: human,
+    enemyLines: enemyLines
 	}
 })()
 
