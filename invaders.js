@@ -166,16 +166,17 @@ const Field = (function() {
     enemyLines.forEach(aliens =>
       aliens.forEach(alien => drawPlayer({...alien}))
     )
+    frame++
 
     // move, draw bullets
     for (i=0; i<human.bullets.length; i++){
       bullet = human.bullets[i]
-      bullet.move(-5)
+      bullet.move(-5, canvasTop, canvasBottom)
       drawBullet({...bullet})
       if(bullet.usedUp) {human.bullets.splice(i,1)}
     }
 
-    frame++
+
 	}
 
 	return {
