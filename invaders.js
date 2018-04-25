@@ -123,7 +123,7 @@ const Field = (function() {
   let alienMove = 20
   let frame = 0
 
-  const playerTypes = ['alien', 'human']
+  let deadAliens = 0
 
   Alien.all = Alien.spawn(canvasEdgeMin, canvasEdgeMax, canvasTop, numEnemies, numEnemyLines)
 
@@ -138,7 +138,7 @@ const Field = (function() {
         playerMove = 8
         break;
       case ' ':
-        human.shoot(playerTypes)
+        human.shoot(Player.types)
         break;
     }
   })
@@ -196,14 +196,20 @@ const Field = (function() {
       bullet.move(-5, canvasTop, canvasBottom)
       drawBullet({...bullet})
       alienCasualty = bullet.checkIfSuccessfulMaim(Alien.all)
-      if(alienCasualty) {bullet.kill(alienCasualty)}
+      if(alienCasualty) {
+        bullet.kill(alienCasualty)
+        deadAliens++
+        document.getElementById('scoreboard').innerHTML = `Kills: ${deadAliens}`
+      }
       if(bullet.usedUp) {human.bullets.splice(i,1)}
     }
 	}
 
+
 	return {
 		animate: draw,
     human: human,
+    deadAliens: deadAliens
 	}
 })()
 

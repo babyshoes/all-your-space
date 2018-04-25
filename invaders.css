@@ -24,3 +24,10 @@ canvas {
     -moz-transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
 }
+
+#scoreboard {
+  color: white;
+  size: 20;
+  text-align: center;
+  margin-top: 20px;
+}
