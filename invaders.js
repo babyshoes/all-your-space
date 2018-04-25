@@ -52,10 +52,20 @@ class Bullet {
     this.posX = startingX
     this.posY = startingY
     this.effectiveAgainst = effectiveAgainst
+    this.usedUp = false
+  }
+
+  atEdge(posY, fieldTop, fieldBottom) {
+    return posY < fieldTop || posY > fieldBottom
   }
 
   move(spacesOver, fieldTop, fieldBottom) {
     let newPosY = this.posY + spacesOver
+    if (this.atEdge(newPosY, fieldTop, fieldBottom)) {
+      this.usedUp = true
+    } else {
+      this.posY = newPosY
+    }
   }
 }
 
@@ -156,10 +166,16 @@ const Field = (function() {
     enemyLines.forEach(aliens =>
       aliens.forEach(alien => drawPlayer({...alien}))
     )
-    frame++
 
-    // draw bullet
-    human.bullets.forEach(bullet => drawBullet({...bullet}))
+    // move, draw bullets
+    for (i=0; i<human.bullets.length; i++){
+      bullet = human.bullets[i]
+      bullet.move(-5)
+      drawBullet({...bullet})
+      if(bullet.usedUp) {human.bullets.splice(i,1)}
+    }
+
+    frame++
 	}
 
 	return {
