@@ -43,7 +43,7 @@ class Player {
 
   shoot(playerTypes){
     let enemyType = playerTypes.find(x => x!=this.type)
-    this.bullets.push(new Bullet(this.posX, this.posY - this.height - 10, enemyType))
+    this.bullets.push(new Bullet(this.posX + (this.width/2), this.posY, enemyType))
   }
 }
 
@@ -122,19 +122,19 @@ const Field = (function() {
     ctx.beginPath();
     ctx.rect(posX, posY, width, height);
     if (type.includes('human')) {
-      ctx.fillStyle = color;
+      ctx.fillStyle = color
       ctx.fill()
     }
     if (type.includes('alien')) {
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = color
       ctx.stroke()
     }
   }
 
-  const drawBullet = ({startingX, startingY}) => {
+  const drawBullet = ({posX, posY}) => {
     ctx.beginPath();
-    ctx.arc(startingX, startingY, 3, 0, 2*Math.PI);
-    ctx.strokeStyle = 'red'
+    ctx.arc(posX, posY, 3, 0, 2*Math.PI);
+    ctx.strokeStyle = 'white'
     ctx.stroke();
   }
 
@@ -158,7 +158,6 @@ const Field = (function() {
     )
     frame++
 
-    // debugg
     // draw bullet
     human.bullets.forEach(bullet => drawBullet({...bullet}))
 	}
