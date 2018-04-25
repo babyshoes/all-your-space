@@ -70,7 +70,8 @@ class Alien extends Player {
   }
 
   die() {
-    this.constructor.all.splice(this.contructor.all.indexOf(this), 1)
+    let aliens = this.constructor.all
+    aliens.splice(aliens.indexOf(this), 1)
   }
 }
 
@@ -96,9 +97,9 @@ class Bullet {
   }
 
   checkIfSuccessfulMaim(otherObjects) {
-    otherObjects.find(player => this.effectiveAgainst === player.type
-      && this.posY === player.posY
-      && (this.posX > player.posX || this.posX < player.posX + player.width)
+    return otherObjects.find(player => this.effectiveAgainst === player.type
+      && (this.posX > player.posX && this.posX < player.posX + player.width)
+      && this.posY === player.posY + player.height
     )
   }
 
@@ -107,7 +108,6 @@ class Bullet {
     this.usedUp = true
   }
 }
-
 
 const Field = (function() {
 	const canvas = document.getElementById('c')
@@ -124,21 +124,6 @@ const Field = (function() {
   let frame = 0
 
   const playerTypes = ['alien', 'human']
-
-  // function makeAliens(startingX, startingY) {
-  //   return [...Array(numEnemies).keys()].map(i =>
-  //     new Player('alien', 'white',
-  //     canvasEdgeMax * 0.8 * (i/numEnemies) + canvasEdgeMin + startingX,
-  //     canvasTop + startingY))
-  // }
-  //
-  // let enemyLines = [...Array(numEnemyLines).keys()]
-  //   .reduce((lines, i) => {
-  //     let startingX = i % 2 === 0 ? 80 : 0
-  //     let startingY = i * 80
-  //     return [...lines, makeAliens(startingX, startingY)]
-  //   },
-  // [])
 
   Alien.all = Alien.spawn(canvasEdgeMin, canvasEdgeMax, canvasTop, numEnemies, numEnemyLines)
 
@@ -201,15 +186,8 @@ const Field = (function() {
     if(frame % 20 === 0){
       if(Alien.all.find(alien => alien.atEdge)) { alienMove = 0 - alienMove }
       Alien.all.forEach(alien => alien.move(alienMove, canvasEdgeMin, canvasEdgeMax))
-      // if([].concat(...enemyLines).find(alien => alien.atEdge)) { alienMove = 0 - alienMove }
-      // for (let aliens of enemyLines) {
-      //   aliens.forEach(alien => alien.move(alienMove, canvasEdgeMin, canvasEdgeMax))
-      // }
     }
     Alien.all.forEach(alien => drawPlayer({...alien}))
-    // enemyLines.forEach(aliens =>
-    //   aliens.forEach(alien => drawPlayer({...alien}))
-    // )
     frame++
 
     // move, draw bullets
