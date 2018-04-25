@@ -14,10 +14,6 @@ class Player {
     this.bullets = []
   }
 
-  static createAlien(){
-    return new this(type, color, startingX, startingY, width=40, height=40, lives=1)
-  }
-
   atRightEdge(posX, fieldEdgeRight) {
     let rightSpillOver = posX > fieldEdgeRight - this.width
     return rightSpillOver
