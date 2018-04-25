@@ -1,8 +1,6 @@
 // TO DO:
-// - killing mechanic
-// - tally kill score
-// - score div
 // - rotating move animation
+
 class Player {
   constructor(type, color, startingX, startingY, width=40, height=40, lives=1) {
     this.type = type
@@ -51,11 +49,6 @@ class Player {
 Player.types = ['alien', 'human']
 
 class Alien extends Player {
-
-  move(spacesOver, fieldEdgeLeft, fieldEdgeRight) {
-    super.move(spacesOver, fieldEdgeLeft, fieldEdgeRight)
-  }
-
   static spawn(startingX, edgeX, startingY, numEnemiesPer, numLines) {
     return [...Array(numEnemiesPer * numLines).keys()].map(i => {
       let lineNum = Math.floor(i / numEnemiesPer)
@@ -204,7 +197,6 @@ const Field = (function() {
       if(bullet.usedUp) {human.bullets.splice(i,1)}
     }
 	}
-
 
 	return {
 		animate: draw,
